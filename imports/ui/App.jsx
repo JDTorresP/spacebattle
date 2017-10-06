@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { createContainer } from 'meteor/react-meteor-data';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import Login from './Login.jsx'
 import Game from './Game.jsx'
 import { Ships } from '../api/ships.js';
@@ -18,11 +19,12 @@ class App extends Component {
   render() {
    
     return (
-      <div>
+      <div> <MuiThemeProvider>
            {this.props.currentUser ? <Game
                 ships={this.props.ships}
                 saveShip={this.saveShip.bind(this)}
               /> : <Login />}
+            </MuiThemeProvider>
       </div>
     );
   }
