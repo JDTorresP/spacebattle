@@ -23,5 +23,6 @@ export default createContainer(() => {
   return {
     ships: Ships.find({}).fetch(),
     games: Games.find({}, { sort: { createdAt: -1 } }).fetch(),
+    currentUser: Meteor.user(),    
   };
 }, App);
