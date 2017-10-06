@@ -7,12 +7,21 @@ import { Games } from '../api/games.js';
 
 class App extends Component {
 
+
+    saveShip(s)
+    {
+        Ships.insert({
+      s,
+      createdAt: new Date(), // current time
+    });
+    }
   render() {
    
     return (
       <div>
            {this.props.currentUser ? <Game
                 ships={this.props.ships}
+                saveShip={this.saveShip.bind(this)}
               /> : <Login />}
       </div>
     );

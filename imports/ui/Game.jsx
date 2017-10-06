@@ -167,10 +167,7 @@ componentDidMount() {
 
   createShip(s)
 {
-     Ships.insert({
-      s,
-      createdAt: new Date(), // current time
-    });
+    this.props.saveShip(s);
     this['ship'].push(s);
 }
 
