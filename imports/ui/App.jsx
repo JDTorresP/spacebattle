@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import Ship from '../sketches/Ship';
 import { randomNumBetweenExcluding } from '../sketches/helpers'
+import { createContainer } from 'meteor/react-meteor-data';
+import { Ships } from '../api/ships.js';
+import { Games } from '../api/games.js';
 
 //Definicion de constantes de las teclas segun navegador 
 //http://www.javascripter.net/faq/keycodes.htm
@@ -11,7 +14,7 @@ const KEY = {
   SPACE: 32
 };
 
-export default class App extends Component {
+class App extends Component {
 
     constructor() {
     super();
@@ -91,13 +94,39 @@ componentDidMount() {
     // Remove or render
     this.updateObjects(this.particles, 'particles')
     this.updateObjects(this.bullets, 'bullets')
-    this.updateObjects(this.ship, 'ship')
+    this.updateShips('ship')
 
     context.restore();
 
     // Next frame
     requestAnimationFrame(() => {this.update()});
   }
+
+   updateObjects(items, group){
+    let index = 0;
+    for (let item of items) {
+      if (item.delete) {
+        this[group].splice(index, 1);
+      }else{
+        items[index].render(this.state);
+      }
+      index++;
+    }
+  }
+
+   updateShips(group){
+    let index = 0;
+   this.props.ships.map((s) => {
+    if (s.delete) {
+        this[group].splice(index, 1);
+      }else{
+        s[index].render(this.state);
+      }
+      index++;
+    });
+  }
+
+   
 
   addScore(points){
     if(this.state.inGame){
@@ -120,10 +149,11 @@ componentDidMount() {
         y: randomNumBetweenExcluding(0, this.state.screen.height, this.state.screen.height/2-60, this.state.screen.width/2+60)
         
       },
-      create: this.createObject.bind(this),
+      create: this.createShip.bind(this),
       onDie: this.gameOver.bind(this)
     });
-    this.createObject(ship, 'ship');
+    this.createShip(ship);
+
   }
 
   gameOver(){
@@ -140,21 +170,19 @@ componentDidMount() {
     }
   }
 
+createShip(s)
+{
+     Ships.insert({
+      s,
+      createdAt: new Date(), // current time
+    });
+    this['ship'].push(s);
+}
+
   createObject(item, group){
     this[group].push(item);
   }
 
-  updateObjects(items, group){
-    let index = 0;
-    for (let item of items) {
-      if (item.delete) {
-        this[group].splice(index, 1);
-      }else{
-        items[index].render(this.state);
-      }
-      index++;
-    }
-  }
 
   checkCollisionsWith(items1, items2) {
     var a = items1.length - 1;
@@ -224,4 +252,11 @@ componentDidMount() {
       </div>
     );
   }
-}
+};
+
+export default createContainer(() => {
+  return {
+    ships: Ships.find({}).fetch(),
+    games: Games.find({}, { sort: { createdAt: -1 } }).fetch(),
+  };
+}, App);
